@@ -1,36 +1,51 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import axios from 'axios';
 axios.defaults.withCredentials = true;
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+const store = createStore({
+    
     state: {
-        user : null
+        user : null,
+        auth : false,
     },
+    getters: {
+        auth: state => {
+            console.log(state.auth);
+          return state.auth;
+        }
+      },
     mutations: {
         SET_USER(state, user) {
-            state.user = user
+            state.user = user;
+            state.auth = Boolean(user);
         } 
     },
     actions: {
-        login({dispatch}, credentials) {
-            axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then(res => {
-                console.log(res);
-              axios.post('http://127.0.0.1:8000/login', this.form).then( res => {
-              console.log(res);
+        login({dispatch}, credentials) {    
+            axios.get(process.env.VUE_APP_BASE_API_URL + 'sanctum/csrf-cookie').then(() => {
+              axios.post(process.env.VUE_APP_BASE_API_URL + 'login', credentials).then( ()  => {
               return dispatch('getUser');
             })
         })
         },
+        logout({dispatch}) {  
+            axios.post(process.env.VUE_APP_BASE_API_URL + 'logout').then( () => {
+            return dispatch('getUser');
+          })
+   
+        },
         getUser({commit}) {
-            axios.get('http://127.0.0.1:8000/api/user').then(res => {
+            axios.get(process.env.VUE_APP_BASE_API_URL + 'api/user').then(res => {
+                console.log(res.data);
                 commit('SET_USER', res.data);
-            }).catch(() => {
-                commit('SET_USER', res.data);
+                
+            }).catch((e) => {
+                console.log(e);
+                commit('SET_USER', null);
             });
         } 
     },
     modules: {},
 })
+
+export default store

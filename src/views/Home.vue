@@ -1,7 +1,8 @@
 <template>
-
-<div class="flex items-center justify-center">
+<div class="flex mt-20 items-center justify-center">
         <div class="w-full max-w-md">
+           <template v-if="!this.$store.getters.auth">
+     
           <form class="bg-white shadow-lg rounded px-12 pt-6 pb-8 mb-4" @submit.prevent="login">
             <div
               class="text-gray-800 text-2xl flex justify-center border-b-2 py-2 mb-4"
@@ -43,18 +44,13 @@
             </div>
              <button class="px-4 py-2 rounded text-white inline-block shadow-lg bg-blue-500 hover:bg-blue-600 focus:bg-blue-700">Sign In</button>
           </form>
+           </template>
+            <template v-if="this.$store.getters.auth">
+           <router-link  to="/hotels" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+           Logged. Click here and go to see the Hotels and Rooms</router-link>
+      </template>
         </div>
-          <div class="container mx-auto">
-    <h1 class="mt-8 text-2xl">Register</h1>
-    <div class="mt-8"> 
-      <form @submit.prevent="register">
-        <input type="email" placeholder="Email" v-model="form.email">
-        <input type="password" placeholder="Password" v-model="form.password">
-        <button>Login</button>
-      </form>
-    </div>
-      </div>
-      
+  
   </div>
 </template>
 
@@ -65,25 +61,13 @@ export default {
   user : {},
   data: () => ({  
       form: {
-        email: 'pedro@gmail.com',
-        password: '1234',
+        email: '',
+        password: '',
       }
   }),
   methods: {
-    login() {
-      console.log('entro')
-      this.$store.dispatch('login', this.form).then(() => {
-        console.log('funca');
-      }); 
-    },
-    register() {
-       axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then(res => {
-          console.log(res);
-        axios.post('http://127.0.0.1:8000/register',  this.form).then( res => {
-        console.log(res);
-      })
-       })
-      
+    async login() {   
+      await this.$store.dispatch('login', this.form);
     }
   },
 }
